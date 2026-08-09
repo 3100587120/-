@@ -41,11 +41,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // 模型切换监听
+        // 模型切换监听（已升级到 V4）
         binding.radioGroupModel.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
-                R.id.radioChat -> viewModel.setModel("deepseek-chat")
-                R.id.radioReasoner -> viewModel.setModel("deepseek-reasoner")
+                R.id.radioChat -> viewModel.setModel("deepseek-v4-flash")   // ✅ 通用模型
+                R.id.radioReasoner -> viewModel.setModel("deepseek-v4-pro") // ✅ 高性能推理
             }
         }
 

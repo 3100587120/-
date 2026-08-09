@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val prefs = application.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-    
+
     private val _messages = MutableStateFlow<List<DisplayMessage>>(emptyList())
     val messages: StateFlow<List<DisplayMessage>> = _messages
 
@@ -30,8 +30,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    // 当前选中的模型，默认 deepseek-chat
+    private val _currentModel = MutableStateFlow("deepseek-chat")
+    val currentModel: StateFlow<String> = _currentModel
+
     private val baseUrl = "https://api.deepseek.com/"
-    
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -53,6 +57,10 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _apiKey.value = key
     }
 
+    fun setModel(model: String) {
+        _currentModel.value = model
+    }
+
     fun sendMessage(userMessage: String) {
         if (apiKey.value.isBlank()) {
             _error.value = "请先设置 API Key"
@@ -70,7 +78,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         val request = ChatRequest(
-            model = "deepseek-chat",
+            model = _currentModel.value,
             messages = historyMessages,
             stream = false
         )
@@ -83,8 +91,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 )
                 if (response.isSuccessful) {
                     val body = response.body()
-                    val replyContent = body?.choices?.firstOrNull()?.message?.content ?: ""
-                    val assistantMsg = DisplayMessage("assistant", replyContent)
+                    val choice = body?.choices?.firstOrNull()
+                    val replyContent = choice?.message?.content ?: ""
+                    val reasoning = choice?.message?.reasoningContent ?: ""
+                    val assistantMsg = DisplayMessage(
+                        role = "assistant",
+                        content = replyContent,
+                        reasoning = reasoning
+                    )
                     _messages.value = _messages.value + assistantMsg
                 } else {
                     val errorBody = response.errorBody()?.string() ?: "未知错误"

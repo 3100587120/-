@@ -1,10 +1,12 @@
 package com.example.deepseekchat.ui
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.deepseekchat.R
 import com.example.deepseekchat.databinding.ItemMessageBinding
 import com.example.deepseekchat.model.DisplayMessage
 
@@ -21,18 +23,39 @@ class ChatAdapter : ListAdapter<DisplayMessage, ChatAdapter.MessageViewHolder>(D
 
     inner class MessageViewHolder(private val binding: ItemMessageBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(message: DisplayMessage) {
             binding.tvRole.text = if (message.role == "user") "我" else "DeepSeek"
+
+            // 设置内容
             binding.tvContent.text = message.content
-            binding.root.setBackgroundColor(
-                if (message.role == "user") 0xFFE3F2FD.toInt() else 0xFFFFFFFF.toInt()
-            )
+
+            // 设置气泡背景色
+            binding.tvContent.background = if (message.role == "user") {
+                binding.root.context.getDrawable(R.drawable.bubble_user)
+            } else {
+                binding.root.context.getDrawable(R.drawable.bubble_assistant)
+            }
+
+            // 处理思考过程
+            if (message.role == "assistant" && message.reasoning.isNotBlank()) {
+                binding.layoutReasoning.visibility = View.VISIBLE
+                binding.tvReasoning.text = message.reasoning
+            } else {
+                binding.layoutReasoning.visibility = View.GONE
+            }
         }
     }
 
     class DiffCallback : DiffUtil.ItemCallback<DisplayMessage>() {
-        override fun areItemsTheSame(oldItem: DisplayMessage, newItem: DisplayMessage) = oldItem === newItem
-        override fun areContentsTheSame(oldItem: DisplayMessage, newItem: DisplayMessage) =
-            oldItem.role == newItem.role && oldItem.content == newItem.content
+        override fun areItemsTheSame(oldItem: DisplayMessage, newItem: DisplayMessage): Boolean {
+            return oldItem === newItem
+        }
+
+        override fun areContentsTheSame(oldItem: DisplayMessage, newItem: DisplayMessage): Boolean {
+            return oldItem.role == newItem.role &&
+                    oldItem.content == newItem.content &&
+                    oldItem.reasoning == newItem.reasoning
+        }
     }
 }

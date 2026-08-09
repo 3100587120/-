@@ -2,7 +2,6 @@ package com.example.deepseekchat.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.deepseekchat.R          // ✅ 添加这行
 import com.example.deepseekchat.databinding.ActivityMainBinding
 import com.example.deepseekchat.viewmodel.ChatViewModel
 import kotlinx.coroutines.flow.collectLatest

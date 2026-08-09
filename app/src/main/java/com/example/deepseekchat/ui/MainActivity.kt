@@ -1,0 +1,82 @@
+package com.example.deepseekchat.ui
+
+import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.deepseekchat.databinding.ActivityMainBinding
+import com.example.deepseekchat.viewmodel.ChatViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityMainBinding
+    private val viewModel: ChatViewModel by viewModels()
+    private lateinit var adapter: ChatAdapter
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        adapter = ChatAdapter()
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
+
+        binding.etApiKey.setText(viewModel.apiKey.value)
+
+        binding.btnSaveKey.setOnClickListener {
+            val key = binding.etApiKey.text.toString().trim()
+            if (key.isNotEmpty()) {
+                viewModel.saveApiKey(key)
+                Toast.makeText(this, "API Key 已保存", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        binding.btnSend.setOnClickListener {
+            val text = binding.etMessage.text.toString().trim()
+            if (text.isNotEmpty()) {
+                viewModel.sendMessage(text)
+                binding.etMessage.text?.clear()
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.messages.collectLatest { list ->
+                    adapter.submitList(list.toList())
+                    if (list.isNotEmpty()) {
+                        binding.recyclerView.smoothScrollToPosition(list.size - 1)
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isLoading.collectLatest { loading ->
+                    binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
+                    binding.btnSend.isEnabled = !loading
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.error.collectLatest { error ->
+                    if (error != null) {
+                        binding.tvError.text = error
+                        binding.tvError.visibility = View.VISIBLE
+                    } else {
+                        binding.tvError.visibility = View.GONE
+                    }
+                }
+            }
+        }
+    }
+}

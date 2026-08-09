@@ -2,6 +2,7 @@ package com.example.deepseekchat.ui
 
 import android.os.Bundle
 import android.view.View
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,8 +29,10 @@ class MainActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
+        // 初始化 API Key 显示
         binding.etApiKey.setText(viewModel.apiKey.value)
 
+        // 保存 API Key
         binding.btnSaveKey.setOnClickListener {
             val key = binding.etApiKey.text.toString().trim()
             if (key.isNotEmpty()) {
@@ -38,6 +41,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 模型切换监听
+        binding.radioGroupModel.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.radioChat -> viewModel.setModel("deepseek-chat")
+                R.id.radioReasoner -> viewModel.setModel("deepseek-reasoner")
+            }
+        }
+
+        // 发送消息
         binding.btnSend.setOnClickListener {
             val text = binding.etMessage.text.toString().trim()
             if (text.isNotEmpty()) {
@@ -46,6 +58,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 观察消息列表
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.messages.collectLatest { list ->
@@ -57,6 +70,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 加载状态
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.isLoading.collectLatest { loading ->
@@ -66,6 +80,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // 错误提示
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.error.collectLatest { error ->

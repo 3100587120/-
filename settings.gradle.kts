@@ -5,11 +5,14 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-dependencyResolution {
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
     }
 }
-rootProject.name = "DeepSeekChat"
+
+rootProject.name = "拒绝唐氏豆包"
 include(":app")

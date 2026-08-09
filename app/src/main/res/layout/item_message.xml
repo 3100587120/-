@@ -5,7 +5,6 @@
     android:orientation="vertical"
     android:padding="8dp">
 
-    <!-- 角色名 -->
     <TextView
         android:id="@+id/tvRole"
         android:layout_width="wrap_content"
@@ -15,7 +14,6 @@
         android:textColor="#333333"
         android:layout_marginBottom="4dp" />
 
-    <!-- 消息内容气泡 -->
     <TextView
         android:id="@+id/tvContent"
         android:layout_width="wrap_content"
@@ -24,9 +22,8 @@
         android:textSize="16sp"
         android:textColor="#000000"
         android:maxWidth="280dp"
-        android:background="@drawable/bubble_user" />
+        android:background="#E0E0E0" />   <!-- 统一灰色，不再区分用户/助手 -->
 
-    <!-- 推理过程（仅 assistant 显示） -->
     <LinearLayout
         android:id="@+id/layoutReasoning"
         android:layout_width="match_parent"

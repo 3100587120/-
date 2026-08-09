@@ -1,15 +1,17 @@
-import com.google.gson.annotations.SerializedName
 package com.example.deepseekchat.model
 
+import com.google.gson.annotations.SerializedName
+
+// ---------- UI 显示用 ----------
 data class DisplayMessage(
     val role: String,               // "user" 或 "assistant"
     val content: String,
     val reasoning: String = ""      // 推理内容，仅 deepseek-reasoner 有效
 )
 
-// ---------- API 数据结构 ----------
+// ---------- API 请求 ----------
 data class ChatRequest(
-    val model: String = "deepseek-chat",
+    val model: String = "deepseek-v4-flash",  // ✅ 已升级到 V4
     val messages: List<Message>,
     val stream: Boolean = false
 )
@@ -19,6 +21,7 @@ data class Message(
     val content: String
 )
 
+// ---------- API 响应 ----------
 data class ChatResponse(
     val id: String,
     val `object`: String,
@@ -34,7 +37,6 @@ data class Choice(
     val finish_reason: String?
 )
 
-// 响应的 message 包含 reasoning_content 字段（仅 reasoner 模型）
 data class ResponseMessage(
     val role: String,
     val content: String,

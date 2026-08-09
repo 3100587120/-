@@ -1,3 +1,4 @@
+import com.google.gson.annotations.SerializedName
 package com.example.deepseekchat.model
 
 data class DisplayMessage(
